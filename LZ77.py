@@ -1,6 +1,7 @@
 from bitarray import *
 import math
 import time
+import sys
 
 def readFile(fileName):
     data = bitarray(endian="big")
@@ -66,10 +67,6 @@ def compress(input_fileName, output_fileName, ws, ls): #ws is window size, ls is
     resultBitArray.fill() #makes it so everything that number is a multiple of 8
 
     end = time.time()
-    print("Percentage Compressed: " + str(100.0-((len(resultBitArray)/size)*100)) + "%")
-    print("Compression Ratio: " + str(len(data)/len(resultBitArray.to01())))
-    print("Time it took to compress: " + str(end-start))
-
     with open(output_fileName, "wb") as output_file:
         resultBitArray.tofile(output_file)
 
@@ -104,171 +101,10 @@ def decompress(input_fileName, output_fileName):
             
     resultBitArray = bitarray(result)
     end = time.time()
-    print("Time it took to decompress: " + str(end-start))
-
     with open(output_fileName, "wb+") as output_file:
         resultBitArray.tofile(output_file)
-
-####
-#Everything below are just test functions, please ignore :D
-###
-
-def test_file_size():
-
-    for i in range(0,7):
-        input_file_name = "test_files/file_size/test" + str(i+1) + ".txt"
-        output_file_name = "test_files/file_size/binaryresult" + str(i+1) + ".bin"
-        decompress_file_name = "test_files/file_size/decompressresult" + str(i+1) + ".txt"
-        print("Compress: " + str(i+1))
-        compress(input_file_name, output_file_name, 63, 50)
-        print("")
-        print("Decompress: " + str(i+1))
-        decompress(output_file_name, decompress_file_name)
-        print("")
-        data1 = readFile(input_file_name).to01()
-        data2 = readFile(decompress_file_name).to01()
-        print("")
-        if(data1 == data2):
-            print("Case " + str(i+1) + " is correct")
-        else:
-            print("Case " + str(i+1) + " did not decompress properly")
-        print("")
-        
-    print("Test is complete!")
-
-def test_file_type():
-    file_formats = ["bmp", "doc", "jpg", "MOV", "pdf", "png", "pptx", "txt", "wav"]
-
-    for i in range(len(file_formats)):
-        fileFormat = file_formats[i]
-        print(fileFormat)
-        input_file_name = "test_files/file_type/test." + fileFormat
-        output_file_name = "test_files/file_type/binaryresult" + fileFormat + ".bin"
-        decompress_file_name = "test_files/file_type/decompressresult." + fileFormat
-        print("Compress: ")
-        compress(input_file_name, output_file_name, 16383, 50)
-        print("")
-        print("Decompress: ")
-        decompress(output_file_name, decompress_file_name)
-        print("")
-        data1 = readFile(input_file_name).to01()
-        data2 = readFile(decompress_file_name).to01()
-        if(data1 == data2):
-            print("Case " + str(i+1) + " is correct")
-        else:
-            print("Case " + str(i+1) + " did not decompress properly")
-        print("")
-        print("")
-    print("Test is complete!")
-
-def test_window_size():
-    print("Test for different window sizes - on 100KB text file and rainbow image bmp file with lookahead size 50")
-    print("")
-    print("")
-
-    window_lengths = [15, 255, 4095, 16383, 65535, 262143]
     
-    print("Text File Results")
-    print("")
-    print("")
-    for i in range(len(window_lengths)):
-        ws = window_lengths[i]
-        print("Window Length: " + str(ws))
-        print("")
-        input_file_name = "test_files/window_length/wl_small.txt"
-        output_file_name = "test_files/window_length/binaryresult" + str(ws) + ".bin"
-        decompress_file_name = "test_files/window_length/decompressresult" + str(ws) + ".txt"
-        compress(input_file_name, output_file_name, ws, 50)
-        decompress(output_file_name, decompress_file_name)
-        print("")
-        data1 = readFile(input_file_name).to01()
-        data2 = readFile(decompress_file_name).to01()
-        if(data1 == data2):
-            print("Case " + str(i+1) + " is correct")
-        else:
-            print("Case " + str(i+1) + " did not decompress properly")
-        print("")
-        print("")
 
-##    print("BMP File Results")
-##    print("")
-##    print("")
-##    for i in range(len(window_lengths)):
-##        ws = window_lengths[i]
-##        print("Window Length: " + str(ws))
-##        print("")
-##        input_file_name = "test_files/window_length/test.bmp"
-##        output_file_name = "test_files/window_length/binaryresultBMP" + str(ws) + ".bin"
-##        decompress_file_name = "test_files/window_length/decompressresultBMP" + str(ws) + ".bmp"
-##        compress(input_file_name, output_file_name, ws, 50)
-##        decompress(output_file_name, decompress_file_name)
-##        print("")
-##        data1 = readFile(input_file_name).to01()
-##        data2 = readFile(decompress_file_name).to01()
-##        if(data1 == data2):
-##            print("Case " + str(i+1) + " is correct")
-##        else:
-##            print("Case " + str(i+1) + " did not decompress properly")
-##        print("")
-##        print("")
-##    print("Test 1 is complete!")
-##    print("")
-##    print("")
-##    print("")
-##    print("")
-
-
-def test_look_ahead():
-    print("Test for different look ahead sizes sizes - on 100KB text file and rainbow image bmp file with window size 4095")
-    print("")
-    print("")
-
-    window_lengths = [255, 511] #is actually look ahead sizes, just variable name is same
-    
-    print("Text File Results")
-    print("")
-    print("")
-    for i in range(len(window_lengths)):
-        ws = window_lengths[i]
-        print("Look-ahead Length: " + str(ws))
-        print("")
-        input_file_name = "test_files/look_ahead_length/la_normal.txt"
-        output_file_name = "test_files/look_ahead_length/binaryresult" + str(ws) + ".bin"
-        decompress_file_name = "test_files/look_ahead_length/decompressresult" + str(ws) + ".txt"
-        compress(input_file_name, output_file_name, 4095, ws)
-        decompress(output_file_name, decompress_file_name)
-        print("")
-        data1 = readFile(input_file_name).to01()
-        data2 = readFile(decompress_file_name).to01()
-        if(data1 == data2):
-            print("Case " + str(i+1) + " is correct")
-        else:
-            print("Case " + str(i+1) + " did not decompress properly")
-        print("")
-        print("")
-
-    print("BMP File Results")
-    print("")
-    print("")
-    for i in range(len(window_lengths)):
-        ws = window_lengths[i]
-        print("Look-ahead Length: " + str(ws))
-        print("")
-        input_file_name = "test_files/look_ahead_length/la_rainbow.bmp"
-        output_file_name = "test_files/look_ahead_length/binaryresultBMP" + str(ws) + ".bin"
-        decompress_file_name = "test_files/look_ahead_length/decompressresultBMP" + str(ws) + ".bmp"
-        compress(input_file_name, output_file_name, 4095, ws)
-        decompress(output_file_name, decompress_file_name)
-        print("")
-        data1 = readFile(input_file_name).to01()
-        data2 = readFile(decompress_file_name).to01()
-        if(data1 == data2):
-            print("Case " + str(i+1) + " is correct")
-        else:
-            print("Case " + str(i+1) + " did not decompress properly")
-        print("")
-        print("")
-    print("Test is complete!")
 
 def ols(ls): #optimise look ahead size
     if(ls <= 1):
@@ -277,17 +113,36 @@ def ols(ls): #optimise look ahead size
         ls = ls - 1
     return ls
 
-def random_test():
-    window_lengths = ["test2.txt", "test3.txt", "test4.txt"]
-    for i in range(len(window_lengths)):
-        ws = window_lengths[i]
-        print(str(window_lengths[i]))
-        print("")
-        input_file_name = str(window_lengths[i])
-        output_file_name = "binaryresult" + str(i+1) + ".bin"
-        decompress_file_name = "decompressresult" + str(ws) + ".bmp"
-        compress(input_file_name, output_file_name, 16383, 50)
-        print("")
+
+while True:
+
+    question1 = input('Please type one of the following: "C" for Compress, "D" for Decompress or "Q" to quit: ')
+    print("\r\n")
+
+    if(question1.lower() == "c"):
+        input_file_name = input("Please type the name of the file you want to compress. Make sure to include the correct extension: ")
+        print("\r\n")
+        output_file_name = input("Please type the name of the file you want to store your compressed data in. Make sure to include the correct extension: ")
+        print("\r\n")
+        ws = input("Please type in the sliding window length: ")
+        print("\r\n")
+        ls = input("Please type in the look-ahead buffer length: ")
+        print("\r\n")
+        compress(input_file_name, output_file_name, int(ws), int(ls))
+        print("Compression has completed.")
+        print("\r\n")
+    elif(question1.lower() == "d"):
+        input_file_name = input("Please type the name of the file you want to decompress. Make sure to include the correct extension: ")
+        print("\r\n")
+        output_file_name = input("Please type the name of the file you want to store your decompressed data in. Make sure to include the correct extension: ")
+        print("\r\n")
+        decompress(input_file_name, output_file_name)
+        print("Decompression has completed.")
+        print("\r\n")
+    elif(question1.lower() == "q"):
+        sys.exit()
+        
+    
     
     
         
