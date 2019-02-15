@@ -46,7 +46,7 @@ def compress(input_fileName, output_fileName, ws, ls): #ws is window size, ls is
     data = readFile(input_fileName).to01()
     size = len(data)
 
-    result = "" #will be a big string to be put into the bitarray at the end
+    result = bitarray() #will be a big string to be put into the bitarray at the end
     result = result + (("{:08b}").format(wBitSize)) + (("{:08b}").format(lBitSize)) #metadata to pass wBitSize and lBitSize to the decoder
     currentIndex = 0 #location of current pointer
 
@@ -60,9 +60,9 @@ def compress(input_fileName, output_fileName, ws, ls): #ws is window size, ls is
         else:
             tupleChar = data[currentIndex]
             currentIndex = currentIndex + 1
-        result = result + (("{:0" + str(wBitSize) + "b}").format(distanceBack)) + (("{0:0" + str(lBitSize) + "b}").format(charCopy)) + tupleChar
+        result = result + bitarray(("{:0" + str(wBitSize) + "b}").format(distanceBack)) + (("{0:0" + str(lBitSize) + "b}").format(charCopy)) + tupleChar
 
-    resultBitArray = bitarray(result)
+    resultBitArray = result
     resultBitArray.fill() #makes it so everything that number is a multiple of 8
 
     end = time.time()
@@ -120,7 +120,7 @@ def test_file_size():
         output_file_name = "test_files/file_size/binaryresult" + str(i+1) + ".bin"
         decompress_file_name = "test_files/file_size/decompressresult" + str(i+1) + ".txt"
         print("Compress: " + str(i+1))
-        compress(input_file_name, output_file_name, 16383, 50)
+        compress(input_file_name, output_file_name, 63, 50)
         print("")
         print("Decompress: " + str(i+1))
         decompress(output_file_name, decompress_file_name)
@@ -276,6 +276,18 @@ def ols(ls): #optimise look ahead size
     elif(float(math.log((ls+1),2)).is_integer()):
         ls = ls - 1
     return ls
+
+def random_test():
+    window_lengths = ["test2.txt", "test3.txt", "test4.txt"]
+    for i in range(len(window_lengths)):
+        ws = window_lengths[i]
+        print(str(window_lengths[i]))
+        print("")
+        input_file_name = str(window_lengths[i])
+        output_file_name = "binaryresult" + str(i+1) + ".bin"
+        decompress_file_name = "decompressresult" + str(ws) + ".bmp"
+        compress(input_file_name, output_file_name, 16383, 50)
+        print("")
     
     
         
